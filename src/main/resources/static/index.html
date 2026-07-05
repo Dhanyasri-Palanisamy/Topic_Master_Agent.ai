@@ -1,0 +1,1345 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>TopicMaster AI — AI-Powered Learning</title>
+<meta name="description" content="TopicMaster AI is an AI-powered tutor that teaches topics, generates quizzes, and provides interview feedback.">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+<style>
+/* ===== CSS RESET & VARIABLES ===== */
+*, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+:root {
+  --bg-primary: #0a0e1a;
+  --bg-secondary: #0f1629;
+  --bg-card: rgba(17, 25, 56, 0.65);
+  --bg-card-hover: rgba(25, 35, 75, 0.75);
+  --bg-glass: rgba(255, 255, 255, 0.04);
+  --border-glass: rgba(255, 255, 255, 0.08);
+  --border-active: rgba(139, 92, 246, 0.4);
+
+  --text-primary: #e2e8f0;
+  --text-secondary: #94a3b8;
+  --text-muted: #64748b;
+
+  --accent-violet: #8b5cf6;
+  --accent-violet-glow: rgba(139, 92, 246, 0.25);
+  --accent-teal: #06b6d4;
+  --accent-teal-glow: rgba(6, 182, 212, 0.2);
+
+  --success: #22c55e;
+  --success-bg: rgba(34, 197, 94, 0.12);
+  --success-border: rgba(34, 197, 94, 0.3);
+  --error: #ef4444;
+  --error-bg: rgba(239, 68, 68, 0.12);
+  --error-border: rgba(239, 68, 68, 0.3);
+
+  --radius-sm: 8px;
+  --radius-md: 12px;
+  --radius-lg: 16px;
+  --radius-xl: 20px;
+
+  --shadow-card: 0 4px 24px rgba(0, 0, 0, 0.3), 0 1px 4px rgba(0, 0, 0, 0.2);
+  --shadow-glow: 0 0 30px var(--accent-violet-glow);
+
+  --transition-fast: 0.2s cubic-bezier(0.4, 0, 0.2, 1);
+  --transition-smooth: 0.35s cubic-bezier(0.4, 0, 0.2, 1);
+  --transition-spring: 0.5s cubic-bezier(0.34, 1.56, 0.64, 1);
+}
+
+html { scroll-behavior: smooth; }
+
+body {
+  font-family: 'Inter', -apple-system, BlinkMacSystemFont, sans-serif;
+  background: var(--bg-primary);
+  color: var(--text-primary);
+  min-height: 100vh;
+  line-height: 1.6;
+  overflow-x: hidden;
+}
+
+/* ===== BACKGROUND GLOW EFFECTS ===== */
+body::before {
+  content: '';
+  position: fixed;
+  top: -30%;
+  left: -20%;
+  width: 60vw;
+  height: 60vw;
+  background: radial-gradient(circle, rgba(139, 92, 246, 0.08) 0%, transparent 70%);
+  pointer-events: none;
+  z-index: 0;
+}
+body::after {
+  content: '';
+  position: fixed;
+  bottom: -30%;
+  right: -20%;
+  width: 50vw;
+  height: 50vw;
+  background: radial-gradient(circle, rgba(6, 182, 212, 0.06) 0%, transparent 70%);
+  pointer-events: none;
+  z-index: 0;
+}
+
+/* ===== LAYOUT ===== */
+.app-container {
+  position: relative;
+  z-index: 1;
+  max-width: 960px;
+  margin: 0 auto;
+  padding: 32px 24px 80px;
+}
+
+/* ===== HEADER ===== */
+.app-header {
+  text-align: center;
+  margin-bottom: 40px;
+  padding-top: 16px;
+}
+.app-header .logo {
+  display: inline-flex;
+  align-items: center;
+  gap: 12px;
+  margin-bottom: 8px;
+}
+.app-header .logo-icon {
+  width: 44px;
+  height: 44px;
+  background: linear-gradient(135deg, var(--accent-violet), var(--accent-teal));
+  border-radius: var(--radius-md);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 22px;
+  box-shadow: 0 0 20px var(--accent-violet-glow);
+}
+.app-header h1 {
+  font-size: 28px;
+  font-weight: 800;
+  background: linear-gradient(135deg, #e2e8f0, var(--accent-violet), var(--accent-teal));
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+  background-clip: text;
+  letter-spacing: -0.5px;
+}
+.app-header .tagline {
+  color: var(--text-muted);
+  font-size: 14px;
+  font-weight: 500;
+  margin-top: 4px;
+}
+
+/* ===== STEPPER ===== */
+.stepper {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 0;
+  margin-bottom: 40px;
+  padding: 16px 24px;
+  background: var(--bg-card);
+  border: 1px solid var(--border-glass);
+  border-radius: var(--radius-lg);
+  backdrop-filter: blur(16px);
+}
+.step {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  padding: 8px 16px;
+  border-radius: var(--radius-sm);
+  cursor: default;
+  transition: var(--transition-smooth);
+  white-space: nowrap;
+}
+.step .step-num {
+  width: 30px;
+  height: 30px;
+  border-radius: 50%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 13px;
+  font-weight: 700;
+  border: 2px solid var(--text-muted);
+  color: var(--text-muted);
+  transition: var(--transition-smooth);
+  flex-shrink: 0;
+}
+.step .step-label {
+  font-size: 13px;
+  font-weight: 600;
+  color: var(--text-muted);
+  transition: var(--transition-smooth);
+}
+.step.active .step-num {
+  border-color: var(--accent-violet);
+  background: var(--accent-violet);
+  color: #fff;
+  box-shadow: 0 0 14px var(--accent-violet-glow);
+}
+.step.active .step-label { color: var(--text-primary); }
+.step.completed .step-num {
+  border-color: var(--success);
+  background: var(--success);
+  color: #fff;
+}
+.step.completed .step-label { color: var(--success); }
+.step-connector {
+  width: 40px;
+  height: 2px;
+  background: var(--border-glass);
+  flex-shrink: 0;
+  transition: var(--transition-smooth);
+}
+.step-connector.active { background: var(--accent-violet); box-shadow: 0 0 8px var(--accent-violet-glow); }
+.step-connector.completed { background: var(--success); }
+
+/* ===== CARDS (Glass) ===== */
+.card {
+  background: var(--bg-card);
+  border: 1px solid var(--border-glass);
+  border-radius: var(--radius-xl);
+  padding: 32px;
+  backdrop-filter: blur(16px);
+  box-shadow: var(--shadow-card);
+  transition: var(--transition-smooth);
+  animation: fadeSlideUp 0.5s ease forwards;
+}
+.card + .card { margin-top: 24px; }
+
+@keyframes fadeSlideUp {
+  from { opacity: 0; transform: translateY(20px); }
+  to { opacity: 1; transform: translateY(0); }
+}
+
+.card-header {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  margin-bottom: 20px;
+}
+.card-header .card-icon {
+  width: 40px;
+  height: 40px;
+  border-radius: var(--radius-md);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 20px;
+  flex-shrink: 0;
+}
+.card-header h2 {
+  font-size: 20px;
+  font-weight: 700;
+  letter-spacing: -0.3px;
+}
+.card-header .badge {
+  margin-left: auto;
+  padding: 4px 12px;
+  border-radius: 999px;
+  font-size: 12px;
+  font-weight: 600;
+}
+
+/* ===== INPUT / TOPIC SECTION ===== */
+.topic-input-group {
+  display: flex;
+  gap: 12px;
+  align-items: stretch;
+}
+.topic-input {
+  flex: 1;
+  padding: 14px 18px;
+  background: var(--bg-glass);
+  border: 1px solid var(--border-glass);
+  border-radius: var(--radius-md);
+  color: var(--text-primary);
+  font-family: inherit;
+  font-size: 15px;
+  font-weight: 500;
+  outline: none;
+  transition: var(--transition-fast);
+}
+.topic-input::placeholder { color: var(--text-muted); }
+.topic-input:focus {
+  border-color: var(--accent-violet);
+  box-shadow: 0 0 0 3px var(--accent-violet-glow);
+}
+
+/* ===== BUTTONS ===== */
+.btn {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+  padding: 13px 24px;
+  border: none;
+  border-radius: var(--radius-md);
+  font-family: inherit;
+  font-size: 14px;
+  font-weight: 600;
+  cursor: pointer;
+  transition: var(--transition-fast);
+  white-space: nowrap;
+  text-decoration: none;
+}
+.btn:active { transform: scale(0.97); }
+.btn:disabled {
+  opacity: 0.5;
+  cursor: not-allowed;
+  transform: none;
+}
+
+.btn-primary {
+  background: linear-gradient(135deg, var(--accent-violet), #7c3aed);
+  color: #fff;
+  box-shadow: 0 4px 14px var(--accent-violet-glow);
+}
+.btn-primary:hover:not(:disabled) {
+  box-shadow: 0 6px 24px rgba(139, 92, 246, 0.4);
+  transform: translateY(-1px);
+}
+
+.btn-teal {
+  background: linear-gradient(135deg, var(--accent-teal), #0891b2);
+  color: #fff;
+  box-shadow: 0 4px 14px var(--accent-teal-glow);
+}
+.btn-teal:hover:not(:disabled) {
+  box-shadow: 0 6px 24px rgba(6, 182, 212, 0.35);
+  transform: translateY(-1px);
+}
+
+.btn-outline {
+  background: transparent;
+  color: var(--text-secondary);
+  border: 1px solid var(--border-glass);
+}
+.btn-outline:hover:not(:disabled) {
+  background: var(--bg-glass);
+  border-color: var(--accent-violet);
+  color: var(--text-primary);
+}
+
+/* ===== SECTION VISIBILITY ===== */
+.section { display: none; }
+.section.visible { display: block; }
+
+/* ===== LESSON CONTENT ===== */
+.lesson-topic {
+  font-size: 22px;
+  font-weight: 700;
+  margin-bottom: 16px;
+  background: linear-gradient(135deg, var(--accent-violet), var(--accent-teal));
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+  background-clip: text;
+}
+
+/* --- Subtopic Tabs --- */
+.subtopic-tabs {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+  margin-bottom: 24px;
+  padding-bottom: 16px;
+  border-bottom: 1px solid var(--border-glass);
+}
+.subtopic-tab {
+  padding: 8px 18px;
+  background: var(--bg-glass);
+  border: 1.5px solid var(--border-glass);
+  border-radius: 999px;
+  font-size: 13px;
+  font-weight: 600;
+  color: var(--text-muted);
+  cursor: pointer;
+  transition: var(--transition-fast);
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  user-select: none;
+}
+.subtopic-tab:hover {
+  border-color: rgba(139, 92, 246, 0.4);
+  color: var(--text-secondary);
+  background: rgba(139, 92, 246, 0.06);
+}
+.subtopic-tab.active {
+  background: rgba(139, 92, 246, 0.15);
+  border-color: var(--accent-violet);
+  color: var(--accent-violet);
+  box-shadow: 0 0 12px var(--accent-violet-glow);
+}
+.subtopic-tab.visited {
+  color: var(--text-secondary);
+  border-color: rgba(34, 197, 94, 0.25);
+}
+.subtopic-tab.visited::before {
+  content: '✓';
+  font-size: 10px;
+  color: var(--success);
+}
+.subtopic-tab.active.visited::before {
+  color: var(--accent-violet);
+}
+
+/* --- Tab Content Panel --- */
+.tab-content-panel {
+  position: relative;
+  min-height: 200px;
+}
+.tab-pane {
+  display: none;
+  animation: tabFadeIn 0.35s ease forwards;
+}
+.tab-pane.active {
+  display: block;
+}
+@keyframes tabFadeIn {
+  from { opacity: 0; transform: translateY(8px); }
+  to { opacity: 1; transform: translateY(0); }
+}
+.tab-pane-title {
+  font-size: 18px;
+  font-weight: 700;
+  color: var(--text-primary);
+  margin-bottom: 14px;
+  display: flex;
+  align-items: center;
+  gap: 10px;
+}
+.tab-pane-title .pane-number {
+  width: 28px;
+  height: 28px;
+  line-height: 28px;
+  text-align: center;
+  background: rgba(6, 182, 212, 0.15);
+  color: var(--accent-teal);
+  border-radius: 50%;
+  font-size: 13px;
+  font-weight: 700;
+  flex-shrink: 0;
+}
+.tab-pane-body {
+  white-space: pre-wrap;
+  font-size: 15px;
+  line-height: 1.85;
+  color: var(--text-secondary);
+  padding: 20px 24px;
+  background: var(--bg-glass);
+  border: 1px solid var(--border-glass);
+  border-radius: var(--radius-md);
+  max-height: 480px;
+  overflow-y: auto;
+}
+.tab-pane-body::-webkit-scrollbar { width: 6px; }
+.tab-pane-body::-webkit-scrollbar-track { background: transparent; }
+.tab-pane-body::-webkit-scrollbar-thumb { background: var(--border-glass); border-radius: 3px; }
+
+/* --- Lesson Navigation Bar --- */
+.lesson-nav {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  margin-top: 20px;
+  padding-top: 16px;
+  border-top: 1px solid var(--border-glass);
+}
+.lesson-nav .nav-progress {
+  font-size: 13px;
+  font-weight: 600;
+  color: var(--text-muted);
+}
+.lesson-nav .nav-progress .current {
+  color: var(--accent-violet);
+  font-weight: 700;
+}
+.lesson-nav .nav-buttons {
+  display: flex;
+  gap: 10px;
+  align-items: center;
+}
+
+/* --- Progress dots --- */
+.progress-dots {
+  display: flex;
+  gap: 6px;
+  align-items: center;
+}
+.progress-dot {
+  width: 8px;
+  height: 8px;
+  border-radius: 50%;
+  background: var(--border-glass);
+  transition: var(--transition-fast);
+}
+.progress-dot.active {
+  background: var(--accent-violet);
+  box-shadow: 0 0 8px var(--accent-violet-glow);
+  width: 20px;
+  border-radius: 4px;
+}
+.progress-dot.visited {
+  background: var(--success);
+}
+
+.lesson-actions {
+  display: flex;
+  justify-content: flex-end;
+  margin-top: 20px;
+}
+
+/* ===== MCQ QUESTIONS ===== */
+.mcq-progress {
+  font-size: 13px;
+  font-weight: 600;
+  color: var(--text-muted);
+  margin-bottom: 16px;
+}
+.mcq-item {
+  padding: 20px;
+  background: var(--bg-glass);
+  border: 1px solid var(--border-glass);
+  border-radius: var(--radius-md);
+  margin-bottom: 16px;
+  transition: var(--transition-fast);
+}
+.mcq-item .q-number {
+  display: inline-block;
+  width: 28px;
+  height: 28px;
+  line-height: 28px;
+  text-align: center;
+  background: rgba(139, 92, 246, 0.15);
+  color: var(--accent-violet);
+  border-radius: 50%;
+  font-size: 12px;
+  font-weight: 700;
+  margin-right: 10px;
+  flex-shrink: 0;
+}
+.mcq-item .q-text {
+  font-size: 15px;
+  font-weight: 600;
+  margin-bottom: 14px;
+  display: flex;
+  align-items: flex-start;
+}
+.mcq-item .q-text span { padding-top: 3px; }
+
+.mcq-options {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 10px;
+}
+@media (max-width: 600px) {
+  .mcq-options { grid-template-columns: 1fr; }
+}
+.mcq-option {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  padding: 12px 16px;
+  background: var(--bg-card);
+  border: 1.5px solid var(--border-glass);
+  border-radius: var(--radius-sm);
+  cursor: pointer;
+  transition: var(--transition-fast);
+  font-size: 14px;
+  color: var(--text-secondary);
+}
+.mcq-option:hover {
+  border-color: var(--accent-violet);
+  background: var(--bg-card-hover);
+  color: var(--text-primary);
+}
+.mcq-option.selected {
+  border-color: var(--accent-violet);
+  background: rgba(139, 92, 246, 0.12);
+  color: var(--text-primary);
+}
+.mcq-option .option-dot {
+  width: 18px;
+  height: 18px;
+  border-radius: 50%;
+  border: 2px solid var(--text-muted);
+  flex-shrink: 0;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  transition: var(--transition-fast);
+}
+.mcq-option.selected .option-dot {
+  border-color: var(--accent-violet);
+  background: var(--accent-violet);
+}
+.mcq-option.selected .option-dot::after {
+  content: '';
+  width: 6px;
+  height: 6px;
+  border-radius: 50%;
+  background: #fff;
+}
+
+/* MCQ grading states */
+.mcq-option.correct-answer {
+  border-color: var(--success);
+  background: var(--success-bg);
+  color: var(--success);
+}
+.mcq-option.correct-answer .option-dot {
+  border-color: var(--success);
+  background: var(--success);
+}
+.mcq-option.wrong-answer {
+  border-color: var(--error);
+  background: var(--error-bg);
+  color: var(--error);
+}
+.mcq-option.wrong-answer .option-dot {
+  border-color: var(--error);
+  background: var(--error);
+}
+
+/* ===== MCQ RESULTS ===== */
+.score-banner {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 16px;
+  padding: 20px;
+  border-radius: var(--radius-md);
+  margin-bottom: 20px;
+  animation: fadeSlideUp 0.4s ease forwards;
+}
+.score-banner.good {
+  background: var(--success-bg);
+  border: 1px solid var(--success-border);
+}
+.score-banner.bad {
+  background: var(--error-bg);
+  border: 1px solid var(--error-border);
+}
+.score-banner .score-number {
+  font-size: 36px;
+  font-weight: 800;
+}
+.score-banner.good .score-number { color: var(--success); }
+.score-banner.bad .score-number { color: var(--error); }
+.score-banner .score-text {
+  font-size: 14px;
+  font-weight: 600;
+  color: var(--text-secondary);
+}
+
+/* ===== INTERVIEW QUESTIONS ===== */
+.interview-item {
+  padding: 20px;
+  background: var(--bg-glass);
+  border: 1px solid var(--border-glass);
+  border-radius: var(--radius-md);
+  margin-bottom: 16px;
+}
+.interview-item .q-text {
+  font-size: 15px;
+  font-weight: 600;
+  margin-bottom: 12px;
+  display: flex;
+  align-items: flex-start;
+}
+.interview-textarea {
+  width: 100%;
+  min-height: 90px;
+  padding: 14px 16px;
+  background: var(--bg-card);
+  border: 1px solid var(--border-glass);
+  border-radius: var(--radius-sm);
+  color: var(--text-primary);
+  font-family: inherit;
+  font-size: 14px;
+  line-height: 1.6;
+  resize: vertical;
+  outline: none;
+  transition: var(--transition-fast);
+}
+.interview-textarea::placeholder { color: var(--text-muted); }
+.interview-textarea:focus {
+  border-color: var(--accent-teal);
+  box-shadow: 0 0 0 3px var(--accent-teal-glow);
+}
+
+/* ===== FEEDBACK CARDS ===== */
+.feedback-card {
+  padding: 20px;
+  background: var(--bg-glass);
+  border: 1px solid var(--border-glass);
+  border-radius: var(--radius-md);
+  margin-bottom: 16px;
+  animation: fadeSlideUp 0.4s ease forwards;
+}
+.feedback-card .fb-question {
+  font-size: 15px;
+  font-weight: 600;
+  margin-bottom: 8px;
+  display: flex;
+  align-items: flex-start;
+}
+.feedback-card .fb-your-answer {
+  font-size: 13px;
+  color: var(--text-muted);
+  margin-bottom: 12px;
+  padding: 10px 14px;
+  background: var(--bg-card);
+  border-radius: var(--radius-sm);
+  border-left: 3px solid var(--accent-violet);
+}
+.feedback-card .fb-text {
+  font-size: 14px;
+  line-height: 1.7;
+  color: var(--text-secondary);
+  padding: 14px 16px;
+  background: rgba(6, 182, 212, 0.06);
+  border: 1px solid rgba(6, 182, 212, 0.15);
+  border-radius: var(--radius-sm);
+}
+.feedback-card .fb-text::before {
+  content: '💡 ';
+}
+
+/* ===== SKELETON LOADER ===== */
+.skeleton-container {
+  animation: fadeSlideUp 0.3s ease forwards;
+}
+.skeleton {
+  background: linear-gradient(90deg, var(--bg-glass) 25%, rgba(255,255,255,0.06) 50%, var(--bg-glass) 75%);
+  background-size: 200% 100%;
+  animation: shimmer 1.5s infinite;
+  border-radius: var(--radius-sm);
+}
+.skeleton-line {
+  height: 16px;
+  margin-bottom: 12px;
+}
+.skeleton-line:last-child { margin-bottom: 0; }
+.skeleton-line.short { width: 60%; }
+.skeleton-line.medium { width: 80%; }
+.skeleton-line.tall { height: 120px; }
+.skeleton-block {
+  height: 200px;
+  margin-bottom: 16px;
+}
+
+@keyframes shimmer {
+  0% { background-position: 200% 0; }
+  100% { background-position: -200% 0; }
+}
+
+/* ===== LOADING OVERLAY ON BUTTONS ===== */
+.btn .spinner {
+  display: none;
+  width: 16px;
+  height: 16px;
+  border: 2px solid rgba(255,255,255,0.3);
+  border-top-color: #fff;
+  border-radius: 50%;
+  animation: spin 0.6s linear infinite;
+}
+.btn.loading .spinner { display: block; }
+.btn.loading .btn-text { opacity: 0.7; }
+
+@keyframes spin {
+  to { transform: rotate(360deg); }
+}
+
+/* ===== BOTTOM ACTION BAR ===== */
+.action-bar {
+  display: flex;
+  justify-content: flex-end;
+  gap: 12px;
+  margin-top: 24px;
+}
+
+/* ===== RESPONSIVE ===== */
+@media (max-width: 700px) {
+  .app-container { padding: 20px 16px 60px; }
+  .stepper { flex-wrap: wrap; gap: 4px; padding: 12px; }
+  .step-connector { width: 20px; }
+  .step { padding: 6px 10px; }
+  .step .step-label { font-size: 11px; }
+  .card { padding: 20px; }
+  .topic-input-group { flex-direction: column; }
+  .app-header h1 { font-size: 22px; }
+}
+</style>
+</head>
+<body>
+
+<div class="app-container">
+
+  <!-- ===== HEADER ===== -->
+  <header class="app-header">
+    <div class="logo">
+      <div class="logo-icon">🧠</div>
+      <h1>TopicMaster AI</h1>
+    </div>
+    <p class="tagline">AI-powered learning &middot; Teach &middot; Quiz &middot; Interview Prep</p>
+  </header>
+
+  <!-- ===== STEPPER ===== -->
+  <nav class="stepper" id="stepper">
+    <div class="step active" id="step-1">
+      <div class="step-num">1</div>
+      <div class="step-label">Topic</div>
+    </div>
+    <div class="step-connector" id="conn-1"></div>
+    <div class="step" id="step-2">
+      <div class="step-num">2</div>
+      <div class="step-label">Lesson</div>
+    </div>
+    <div class="step-connector" id="conn-2"></div>
+    <div class="step" id="step-3">
+      <div class="step-num">3</div>
+      <div class="step-label">MCQ Quiz</div>
+    </div>
+    <div class="step-connector" id="conn-3"></div>
+    <div class="step" id="step-4">
+      <div class="step-num">4</div>
+      <div class="step-label">Interview</div>
+    </div>
+  </nav>
+
+  <!-- ===== STEP 1: TOPIC INPUT ===== -->
+  <div class="section visible" id="section-topic">
+    <div class="card">
+      <div class="card-header">
+        <div class="card-icon" style="background:rgba(139,92,246,0.15);color:var(--accent-violet);">📚</div>
+        <h2>Choose a Topic</h2>
+      </div>
+      <p style="color:var(--text-secondary);font-size:14px;margin-bottom:18px;">
+        Enter any topic you'd like to learn. The AI will generate a structured lesson, quiz, and interview questions tailored for you.
+      </p>
+      <div class="topic-input-group">
+        <input class="topic-input" id="topic-input" placeholder="e.g. JDBC, Spring Boot, REST APIs, Microservices..." autofocus />
+        <button class="btn btn-primary" id="btn-teach" onclick="teach()">
+          <span class="spinner"></span>
+          <span class="btn-text">Teach Me</span>
+        </button>
+      </div>
+    </div>
+  </div>
+
+  <!-- ===== STEP 2: LESSON ===== -->
+  <div class="section" id="section-lesson">
+    <!-- Skeleton shown while loading -->
+    <div class="card skeleton-container" id="lesson-skeleton" style="display:none;">
+      <div class="skeleton skeleton-line short"></div>
+      <div class="skeleton skeleton-line medium"></div>
+      <div class="skeleton skeleton-block"></div>
+      <div class="skeleton skeleton-line short"></div>
+    </div>
+
+    <!-- Actual lesson content -->
+    <div class="card" id="lesson-card" style="display:none;">
+      <div class="card-header">
+        <div class="card-icon" style="background:rgba(6,182,212,0.15);color:var(--accent-teal);">🎓</div>
+        <h2>Lesson</h2>
+        <div class="badge" style="background:rgba(6,182,212,0.15);color:var(--accent-teal);" id="lesson-badge"></div>
+      </div>
+      <div class="lesson-topic" id="lesson-title"></div>
+
+      <!-- Subtopic Tab Bar -->
+      <div class="subtopic-tabs" id="subtopic-tabs"></div>
+
+      <!-- Tab Content Panels -->
+      <div class="tab-content-panel" id="tab-content-panel"></div>
+
+      <!-- Navigation Bar -->
+      <div class="lesson-nav">
+        <div class="nav-progress">
+          <span class="current" id="nav-current">1</span> of <span id="nav-total">5</span>
+        </div>
+        <div class="progress-dots" id="progress-dots"></div>
+        <div class="nav-buttons">
+          <button class="btn btn-outline" id="btn-prev" onclick="prevSubtopic()">
+            ← Previous
+          </button>
+          <button class="btn btn-primary" id="btn-next" onclick="nextSubtopic()">
+            Next →
+          </button>
+          <button class="btn btn-teal" id="btn-quiz" onclick="generateQuiz()" style="display:none;">
+            <span class="spinner"></span>
+            <span class="btn-text">Generate Quiz 🎯</span>
+          </button>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- ===== STEP 3: MCQ QUIZ ===== -->
+  <div class="section" id="section-mcq">
+    <!-- Skeleton shown while loading -->
+    <div class="card skeleton-container" id="mcq-skeleton" style="display:none;">
+      <div class="skeleton skeleton-line medium"></div>
+      <div class="skeleton skeleton-block"></div>
+      <div class="skeleton skeleton-block"></div>
+      <div class="skeleton skeleton-line short"></div>
+    </div>
+
+    <div class="card" id="mcq-card" style="display:none;">
+      <div class="card-header">
+        <div class="card-icon" style="background:rgba(139,92,246,0.15);color:var(--accent-violet);">✅</div>
+        <h2>Multiple Choice Quiz</h2>
+        <div class="badge" style="background:rgba(139,92,246,0.15);color:var(--accent-violet);" id="mcq-badge">10 Questions</div>
+      </div>
+      <div id="mcq-container"></div>
+      <div id="mcq-result"></div>
+      <div class="action-bar" id="mcq-actions">
+        <button class="btn btn-primary" id="btn-submit-mcq" onclick="submitMcq()">
+          <span class="spinner"></span>
+          <span class="btn-text">Submit Answers</span>
+        </button>
+      </div>
+    </div>
+  </div>
+
+  <!-- ===== STEP 4: INTERVIEW ===== -->
+  <div class="section" id="section-interview">
+    <div class="card" id="interview-card" style="display:none;">
+      <div class="card-header">
+        <div class="card-icon" style="background:rgba(6,182,212,0.15);color:var(--accent-teal);">💬</div>
+        <h2>Interview Practice</h2>
+        <div class="badge" style="background:rgba(6,182,212,0.15);color:var(--accent-teal);" id="interview-badge">5 Questions</div>
+      </div>
+      <div id="interview-container"></div>
+      <div id="feedback-area"></div>
+      <div class="action-bar" id="interview-actions">
+        <button class="btn btn-teal" id="btn-submit-interview" onclick="submitInterview()">
+          <span class="spinner"></span>
+          <span class="btn-text">Submit & Get Feedback</span>
+        </button>
+      </div>
+    </div>
+  </div>
+
+</div>
+
+<script>
+let currentQuiz = null;
+let currentLesson = null;
+let activeSubtopicIndex = 0;
+let visitedSubtopics = new Set();
+
+/* ===== STEPPER CONTROL ===== */
+function setStep(stepNum) {
+  for (let i = 1; i <= 4; i++) {
+    const stepEl = document.getElementById(`step-${i}`);
+    const connEl = document.getElementById(`conn-${i}`);
+    stepEl.classList.remove('active', 'completed');
+    if (connEl) connEl.classList.remove('active', 'completed');
+
+    if (i < stepNum) {
+      stepEl.classList.add('completed');
+      stepEl.querySelector('.step-num').textContent = '✓';
+      if (connEl) connEl.classList.add('completed');
+    } else if (i === stepNum) {
+      stepEl.classList.add('active');
+      stepEl.querySelector('.step-num').textContent = i;
+    } else {
+      stepEl.querySelector('.step-num').textContent = i;
+    }
+  }
+}
+
+/* ===== UTILITY: SHOW / HIDE ===== */
+function showSection(id) {
+  document.getElementById(id).classList.add('visible');
+}
+function hideSection(id) {
+  document.getElementById(id).classList.remove('visible');
+}
+
+function setLoading(btnId, loading) {
+  const btn = document.getElementById(btnId);
+  if (loading) {
+    btn.classList.add('loading');
+    btn.disabled = true;
+  } else {
+    btn.classList.remove('loading');
+    btn.disabled = false;
+  }
+}
+
+/* ===== SUBTOPIC TAB NAVIGATION ===== */
+function switchToSubtopic(index) {
+  if (!currentLesson || !currentLesson.subtopics) return;
+  const total = currentLesson.subtopics.length;
+  if (index < 0 || index >= total) return;
+
+  activeSubtopicIndex = index;
+  visitedSubtopics.add(index);
+
+  // Update tabs
+  const tabs = document.querySelectorAll('.subtopic-tab');
+  tabs.forEach((tab, i) => {
+    tab.classList.remove('active');
+    if (i === index) tab.classList.add('active');
+    if (visitedSubtopics.has(i)) tab.classList.add('visited');
+  });
+
+  // Update content panes
+  const panes = document.querySelectorAll('.tab-pane');
+  panes.forEach((pane, i) => {
+    pane.classList.remove('active');
+    if (i === index) {
+      pane.classList.add('active');
+      // Re-trigger animation
+      pane.style.animation = 'none';
+      pane.offsetHeight; // force reflow
+      pane.style.animation = '';
+    }
+  });
+
+  // Update progress counter
+  document.getElementById('nav-current').textContent = index + 1;
+
+  // Update progress dots
+  const dots = document.querySelectorAll('.progress-dot');
+  dots.forEach((dot, i) => {
+    dot.classList.remove('active', 'visited');
+    if (i === index) dot.classList.add('active');
+    else if (visitedSubtopics.has(i)) dot.classList.add('visited');
+  });
+
+  // Update nav buttons
+  document.getElementById('btn-prev').disabled = index === 0;
+  const isLast = index === total - 1;
+  document.getElementById('btn-next').style.display = isLast ? 'none' : '';
+  document.getElementById('btn-quiz').style.display = isLast ? '' : 'none';
+
+  // Scroll content into view
+  document.getElementById('tab-content-panel').scrollIntoView({ behavior: 'smooth', block: 'nearest' });
+}
+
+function nextSubtopic() {
+  switchToSubtopic(activeSubtopicIndex + 1);
+}
+function prevSubtopic() {
+  switchToSubtopic(activeSubtopicIndex - 1);
+}
+
+function renderLessonTabs(lesson) {
+  currentLesson = lesson;
+  activeSubtopicIndex = 0;
+  visitedSubtopics = new Set([0]);
+
+  const total = lesson.subtopics.length;
+
+  // Badge
+  document.getElementById('lesson-badge').textContent = `${total} Subtopics`;
+  document.getElementById('nav-total').textContent = total;
+  document.getElementById('nav-current').textContent = '1';
+
+  // Build tabs
+  const tabsContainer = document.getElementById('subtopic-tabs');
+  tabsContainer.innerHTML = '';
+  lesson.subtopics.forEach((st, i) => {
+    const tab = document.createElement('div');
+    tab.className = 'subtopic-tab' + (i === 0 ? ' active visited' : '');
+    tab.textContent = st.title || `Subtopic ${i + 1}`;
+    tab.onclick = () => switchToSubtopic(i);
+    tabsContainer.appendChild(tab);
+  });
+
+  // Build content panes
+  const panelContainer = document.getElementById('tab-content-panel');
+  panelContainer.innerHTML = '';
+  lesson.subtopics.forEach((st, i) => {
+    const pane = document.createElement('div');
+    pane.className = 'tab-pane' + (i === 0 ? ' active' : '');
+    pane.innerHTML = `
+      <div class="tab-pane-title">
+        <span class="pane-number">${i + 1}</span>
+        <span>${escapeHtml(st.title || `Subtopic ${i + 1}`)}</span>
+      </div>
+      <div class="tab-pane-body">${escapeHtml(st.content || 'No detailed content available.')}</div>
+    `;
+    panelContainer.appendChild(pane);
+  });
+
+  // Build progress dots
+  const dotsContainer = document.getElementById('progress-dots');
+  dotsContainer.innerHTML = '';
+  lesson.subtopics.forEach((_, i) => {
+    const dot = document.createElement('div');
+    dot.className = 'progress-dot' + (i === 0 ? ' active' : '');
+    dot.onclick = () => switchToSubtopic(i);
+    dot.style.cursor = 'pointer';
+    dotsContainer.appendChild(dot);
+  });
+
+  // Reset nav buttons
+  document.getElementById('btn-prev').disabled = true;
+  document.getElementById('btn-next').style.display = total <= 1 ? 'none' : '';
+  document.getElementById('btn-quiz').style.display = total <= 1 ? '' : 'none';
+}
+
+/* ===== STEP 1: TEACH ===== */
+async function teach() {
+  const topic = document.getElementById('topic-input').value.trim();
+  if (!topic) {
+    document.getElementById('topic-input').focus();
+    return;
+  }
+
+  setLoading('btn-teach', true);
+  setStep(2);
+  showSection('section-lesson');
+  document.getElementById('lesson-skeleton').style.display = 'block';
+  document.getElementById('lesson-card').style.display = 'none';
+
+  try {
+    const res = await fetch('/api/teach', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ topic })
+    });
+    const lesson = await res.json();
+
+    document.getElementById('lesson-title').textContent = lesson.topic;
+    renderLessonTabs(lesson);
+
+    document.getElementById('lesson-skeleton').style.display = 'none';
+    document.getElementById('lesson-card').style.display = 'block';
+
+    // Scroll to lesson
+    document.getElementById('section-lesson').scrollIntoView({ behavior: 'smooth', block: 'start' });
+  } catch (err) {
+    alert('Error fetching lesson. Please check if the server is running and your API key is set.');
+    document.getElementById('lesson-skeleton').style.display = 'none';
+    setStep(1);
+  }
+
+  setLoading('btn-teach', false);
+}
+
+/* ===== STEP 2: GENERATE QUIZ ===== */
+async function generateQuiz() {
+  setLoading('btn-quiz', true);
+  setStep(3);
+  showSection('section-mcq');
+  showSection('section-interview');
+  document.getElementById('mcq-skeleton').style.display = 'block';
+  document.getElementById('mcq-card').style.display = 'none';
+  document.getElementById('interview-card').style.display = 'none';
+
+  try {
+    const res = await fetch('/api/quiz', { method: 'POST' });
+    currentQuiz = await res.json();
+
+    // Build MCQs
+    const mcqContainer = document.getElementById('mcq-container');
+    mcqContainer.innerHTML = '';
+    document.getElementById('mcq-result').innerHTML = '';
+    document.getElementById('mcq-badge').textContent = `${currentQuiz.mcqs.length} Questions`;
+
+    currentQuiz.mcqs.forEach((q, i) => {
+      const item = document.createElement('div');
+      item.className = 'mcq-item';
+      item.innerHTML = `
+        <div class="q-text">
+          <span class="q-number">${i + 1}</span>
+          <span>${escapeHtml(q.question)}</span>
+        </div>
+        <div class="mcq-options" id="mcq-options-${i}">
+          ${q.options.map((opt, j) => `
+            <div class="mcq-option" data-question="${i}" data-value="${escapeAttr(opt)}" onclick="selectOption(this)">
+              <div class="option-dot"></div>
+              <span>${escapeHtml(opt)}</span>
+            </div>
+          `).join('')}
+        </div>
+      `;
+      mcqContainer.appendChild(item);
+    });
+
+    // Build Interview Questions
+    const interviewContainer = document.getElementById('interview-container');
+    interviewContainer.innerHTML = '';
+    document.getElementById('feedback-area').innerHTML = '';
+    document.getElementById('interview-badge').textContent = `${currentQuiz.interviewQuestions.length} Questions`;
+
+    currentQuiz.interviewQuestions.forEach((q, i) => {
+      const item = document.createElement('div');
+      item.className = 'interview-item';
+      item.innerHTML = `
+        <div class="q-text">
+          <span class="q-number">${i + 1}</span>
+          <span>${escapeHtml(q.question)}</span>
+        </div>
+        <textarea class="interview-textarea" id="interview-${i}" placeholder="Type your answer here..." rows="3"></textarea>
+      `;
+      interviewContainer.appendChild(item);
+    });
+
+    document.getElementById('mcq-skeleton').style.display = 'none';
+    document.getElementById('mcq-card').style.display = 'block';
+    document.getElementById('interview-card').style.display = 'block';
+
+    document.getElementById('btn-submit-mcq').style.display = '';
+    document.getElementById('btn-submit-interview').style.display = '';
+
+    document.getElementById('section-mcq').scrollIntoView({ behavior: 'smooth', block: 'start' });
+  } catch (err) {
+    alert('Error generating quiz. Please try again.');
+    document.getElementById('mcq-skeleton').style.display = 'none';
+    setStep(2);
+  }
+
+  setLoading('btn-quiz', false);
+}
+
+/* ===== MCQ OPTION SELECTION ===== */
+function selectOption(el) {
+  // if already graded, don't allow re-selection
+  if (el.classList.contains('correct-answer') || el.classList.contains('wrong-answer')) return;
+
+  const questionIdx = el.dataset.question;
+  const siblings = document.querySelectorAll(`.mcq-option[data-question="${questionIdx}"]`);
+  siblings.forEach(s => s.classList.remove('selected'));
+  el.classList.add('selected');
+}
+
+/* ===== STEP 3: SUBMIT MCQ ===== */
+async function submitMcq() {
+  const answers = {};
+  currentQuiz.mcqs.forEach((q, i) => {
+    const selected = document.querySelector(`.mcq-option.selected[data-question="${i}"]`);
+    answers[i] = selected ? selected.dataset.value : '';
+  });
+
+  setLoading('btn-submit-mcq', true);
+
+  try {
+    const res = await fetch('/api/submit-mcq', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify(answers)
+    });
+    const result = await res.json();
+
+    // Show score banner
+    const isGood = result.score >= result.total / 2;
+    const resultDiv = document.getElementById('mcq-result');
+    resultDiv.innerHTML = `
+      <div class="score-banner ${isGood ? 'good' : 'bad'}">
+        <div class="score-number">${result.score}/${result.total}</div>
+        <div class="score-text">${isGood ? '🎉 Great job!' : '📖 Keep studying!'}<br>You got ${result.score} out of ${result.total} correct</div>
+      </div>
+    `;
+
+    // Highlight correct / wrong answers
+    result.details.forEach((d, i) => {
+      const options = document.querySelectorAll(`.mcq-option[data-question="${i}"]`);
+      options.forEach(opt => {
+        opt.style.cursor = 'default';
+        const value = opt.dataset.value;
+        if (value === d.correctAnswer) {
+          opt.classList.add('correct-answer');
+        } else if (opt.classList.contains('selected') && d.result === 'wrong') {
+          opt.classList.add('wrong-answer');
+        }
+      });
+      
+      const mcqItem = document.getElementById(`mcq-options-${i}`).parentNode;
+      const expl = document.createElement('div');
+      expl.style.marginTop = '12px';
+      expl.style.fontSize = '14px';
+      expl.style.color = 'var(--text-secondary)';
+      expl.style.padding = '12px 16px';
+      expl.style.background = 'rgba(139, 92, 246, 0.08)';
+      expl.style.borderLeft = '3px solid var(--accent-violet)';
+      expl.style.borderRadius = 'var(--radius-sm)';
+      expl.innerHTML = `<strong>Explanation:</strong> ${escapeHtml(d.explanation || '')}`;
+      mcqItem.appendChild(expl);
+    });
+
+    document.getElementById('btn-submit-mcq').style.display = 'none';
+
+    // Scroll to interview section
+    setStep(4);
+    document.getElementById('section-interview').scrollIntoView({ behavior: 'smooth', block: 'start' });
+  } catch (err) {
+    alert('Error submitting MCQ. Please try again.');
+  }
+
+  setLoading('btn-submit-mcq', false);
+}
+
+/* ===== STEP 4: SUBMIT INTERVIEW ===== */
+async function submitInterview() {
+  const answers = {};
+  currentQuiz.interviewQuestions.forEach((q, i) => {
+    answers[i] = document.getElementById(`interview-${i}`).value;
+  });
+
+  setLoading('btn-submit-interview', true);
+
+  try {
+    const res = await fetch('/api/submit-interview', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify(answers)
+    });
+    const feedback = await res.json();
+
+    const feedbackArea = document.getElementById('feedback-area');
+    feedbackArea.innerHTML = '<h3 style="font-size:18px;font-weight:700;margin-bottom:16px;color:var(--accent-teal);">AI Feedback</h3>';
+    feedback.forEach((f, i) => {
+      const card = document.createElement('div');
+      card.className = 'feedback-card';
+      card.style.animationDelay = `${i * 0.1}s`;
+      card.innerHTML = `
+        <div class="fb-question">
+          <span class="q-number">${i + 1}</span>
+          <span>${escapeHtml(f.question)}</span>
+        </div>
+        <div class="fb-your-answer"><strong>Your answer:</strong> ${escapeHtml(f.yourAnswer || '(no answer)')}</div>
+        <div class="fb-text">${escapeHtml(f.feedback)}</div>
+      `;
+      feedbackArea.appendChild(card);
+    });
+
+    document.getElementById('btn-submit-interview').style.display = 'none';
+
+    feedbackArea.scrollIntoView({ behavior: 'smooth', block: 'start' });
+  } catch (err) {
+    alert('Error submitting interview answers. Please try again.');
+  }
+
+  setLoading('btn-submit-interview', false);
+}
+
+/* ===== HELPERS ===== */
+function escapeHtml(text) {
+  const div = document.createElement('div');
+  div.textContent = text;
+  return div.innerHTML;
+}
+function escapeAttr(text) {
+  return text.replace(/"/g, '&quot;').replace(/'/g, '&#39;');
+}
+
+/* ===== ENTER KEY SUPPORT ===== */
+document.getElementById('topic-input').addEventListener('keydown', function(e) {
+  if (e.key === 'Enter') teach();
+});
+</script>
+
+</body>
+</html>
